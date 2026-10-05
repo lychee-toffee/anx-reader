@@ -397,20 +397,56 @@ const setSelectionHandler = (view, doc, index) => {
   } else { // Android
     let hasNativeSelectionStarted = false;
     let longPressSettleTimer;
+    let isMouseSelecting = false;
+    let isMousePrimaryDown = false;
+    let mouseSelectionDebounceTimerId = undefined;
 
-    doc.addEventListener('pointerdown', () => {
+    doc.addEventListener('pointerdown', (e) => {
       hasNativeSelectionStarted = false;
+      if (e.pointerType !== 'mouse') return;
+      isMouseSelecting = true;
+      isMousePrimaryDown = e.button === 0;
     });
 
     // When the native selection handles appear, the browser loses control of the pointer
-    // This event signals that the user has started dragging handles
+    // This event signals that the user has started dragging handles.
+    // Do not reset isMouseSelecting here: if the native handles swallow the mouse
+    // pointerup, the selectionchange fallback below must still be able to fire.
     doc.addEventListener('pointercancel', () => {
       hasNativeSelectionStarted = true;
+    });
+
+    // A mouse left-button drag selection ends with pointerup, which the
+    // contextmenu-only trigger cannot observe on Android.
+    doc.addEventListener('pointerup', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const wasPrimaryDown = isMousePrimaryDown;
+      isMousePrimaryDown = false;
+      isMouseSelecting = false;
+      if (!wasPrimaryDown) return;
+      if (shouldSkipPointerUp()) return;
+      handleSelection(view, doc, index);
+    });
+
+    // Fallback for Android WebViews where the native selection handles swallow
+    // the mouse pointerup: wait for the selection to settle, then handle it.
+    doc.addEventListener('selectionchange', () => {
+      if (!isMouseSelecting) return;
+      const selRange = getSelectionRange(doc.getSelection());
+      if (!selRange) return;
+      clearTimeout(mouseSelectionDebounceTimerId);
+      mouseSelectionDebounceTimerId = setTimeout(() => {
+        if (!isMouseSelecting) return;
+        if (shouldSkipPointerUp()) return;
+        handleSelection(view, doc, index);
+      }, 500);
     });
 
     doc.addEventListener('contextmenu', e => {
       // Allow mouse context menu (if any)
       if (e.pointerType === 'mouse') {
+        if (!getSelectionRange(doc.getSelection())) return;
+        if (shouldSkipPointerUp()) return;
         handleSelection(view, doc, index);
         return;
       }
