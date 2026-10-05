@@ -315,7 +315,7 @@ class SyncStatusBottomSheet extends ConsumerWidget {
                 final remoteOnlyIds = ref
                         .read(syncStatusProvider)
                         .whenData((data) => data.remoteOnly)
-                        .valueOrNull ??
+                        .value ??
                     [];
                 if (remoteOnlyIds.isNotEmpty) {
                   ref

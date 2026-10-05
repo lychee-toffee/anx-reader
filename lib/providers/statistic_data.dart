@@ -16,7 +16,7 @@ class StatisticData extends _$StatisticData {
     bool? isSelectingDay,
     DateTime? date,
   }) async {
-    final currentState = state.valueOrNull!;
+    final currentState = state.value!;
     final newMode = mode ?? currentState.mode;
     final newIsSelectingDay = isSelectingDay ?? currentState.isSelectingDay;
     final newDate = date ?? currentState.date;
@@ -37,7 +37,7 @@ class StatisticData extends _$StatisticData {
   Future<void> setDate(DateTime date) => _updateState(date: date);
 
   Future<void> touchMonth(int index) async {
-    final date = state.valueOrNull!.date;
+    final date = state.value!.date;
     final newDate = DateTime(date.year, index + 1, 1);
     const mode = ChartMode.month;
     const isSelectingDay = false;
@@ -47,7 +47,7 @@ class StatisticData extends _$StatisticData {
 
   Future<void> touchDay(int days, int index) async {
     bool isWeek = days == 7;
-    final date = state.valueOrNull!.date;
+    final date = state.value!.date;
     final newDate = isWeek
         ? date.subtract(Duration(days: date.weekday - 1 - index))
         : DateTime(date.year, date.month, index + 1);

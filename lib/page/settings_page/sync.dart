@@ -354,7 +354,7 @@ Future<void> extractZipFile(Map<String, String> params) async {
 
   final input = InputFileStream(zipFilePath);
   try {
-    final archive = ZipDecoder().decodeBuffer(input);
+    final archive = ZipDecoder().decodeStream(input);
     extractArchiveToDiskSync(archive, destinationPath);
     archive.clearSync();
   } finally {

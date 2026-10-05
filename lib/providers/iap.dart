@@ -92,7 +92,7 @@ class Iap extends _$Iap {
   }
 
   Future<void> loadProducts() async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
 
     try {
@@ -144,13 +144,13 @@ class Iap extends _$Iap {
   }
 
   Future<void> buy() async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null || current.isPurchasing) return;
 
     var products = current.products;
     if (products.isEmpty) {
       await loadProducts();
-      products = state.valueOrNull?.products ?? [];
+      products = state.value?.products ?? [];
     }
 
     if (products.isEmpty) {
@@ -182,7 +182,7 @@ class Iap extends _$Iap {
   }
 
   Future<void> restore() async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
 
     _updateState(
@@ -201,7 +201,7 @@ class Iap extends _$Iap {
       await Future.delayed(const Duration(seconds: 5));
 
       // Check if we got any restore result
-      final afterState = state.valueOrNull;
+      final afterState = state.value;
       if (afterState != null &&
           afterState.isRestoring &&
           afterState.purchaseFlowStatus == IapPurchaseFlowStatus.idle) {
@@ -227,7 +227,7 @@ class Iap extends _$Iap {
       );
     } finally {
       // Only set isRestoring to false if it wasn't already handled
-      final finalState = state.valueOrNull;
+      final finalState = state.value;
       if (finalState?.isRestoring == true) {
         _updateState((c) => c.copyWith(isRestoring: false));
       }
@@ -235,7 +235,7 @@ class Iap extends _$Iap {
   }
 
   Future<void> refresh({bool userInitiated = false}) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
 
     final policy = userInitiated ? _RefreshPolicy.full : _RefreshPolicy.full;
@@ -298,7 +298,7 @@ class Iap extends _$Iap {
   Future<void> _refreshEntitlement({
     required _RefreshPolicy policy,
   }) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
 
     final snapshot = await _iapService.loadSnapshot();
@@ -355,7 +355,7 @@ class Iap extends _$Iap {
   }
 
   void _invalidateCachedPurchase() {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) {
       _writePurchaseCache(false, DateTime.now());
       return;
@@ -452,7 +452,7 @@ class Iap extends _$Iap {
     required DateTime? purchaseDate,
     required IapPurchaseFlowStatus flowStatus,
   }) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
 
     final now = DateTime.now();
@@ -523,7 +523,7 @@ class Iap extends _$Iap {
   }
 
   void _updateState(IapState Function(IapState current) transform) {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     state = AsyncValue.data(transform(current));
   }

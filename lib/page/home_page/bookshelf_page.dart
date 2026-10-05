@@ -103,7 +103,7 @@ class BookshelfPageState extends ConsumerState<BookshelfPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final statusFilter = ref.watch(readingStatusFilterNotifierProvider);
+    final statusFilter = ref.watch(readingStatusFilterProvider);
     final selectedTags = ref.watch(tagSelectionProvider);
     final tagsAsync = ref.watch(tagListProvider);
 
@@ -114,7 +114,7 @@ class BookshelfPageState extends ConsumerState<BookshelfPage>
           selected: statusFilter == ReadingStatusFilter.finished,
           onTap: () {
             ref
-                .read(readingStatusFilterNotifierProvider.notifier)
+                .read(readingStatusFilterProvider.notifier)
                 .toggle(ReadingStatusFilter.finished);
             ref.read(bookListProvider.notifier).refresh();
           },
@@ -124,7 +124,7 @@ class BookshelfPageState extends ConsumerState<BookshelfPage>
           selected: statusFilter == ReadingStatusFilter.reading,
           onTap: () {
             ref
-                .read(readingStatusFilterNotifierProvider.notifier)
+                .read(readingStatusFilterProvider.notifier)
                 .toggle(ReadingStatusFilter.reading);
             ref.read(bookListProvider.notifier).refresh();
           },
@@ -134,7 +134,7 @@ class BookshelfPageState extends ConsumerState<BookshelfPage>
           selected: statusFilter == ReadingStatusFilter.notStarted,
           onTap: () {
             ref
-                .read(readingStatusFilterNotifierProvider.notifier)
+                .read(readingStatusFilterProvider.notifier)
                 .toggle(ReadingStatusFilter.notStarted);
             ref.read(bookListProvider.notifier).refresh();
           },

@@ -50,7 +50,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   Future<void> refresh() async {
-    final current = state.valueOrNull;
+    final current = state.value;
     try {
       final notes = await bookNoteDao.selectBookNotesByBookId(book.id);
       state = AsyncValue.data(
@@ -66,7 +66,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   void toggleSelection(BookNote note) {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null || note.id == null) {
       return;
     }
@@ -84,7 +84,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   void clearSelection() {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     if (current.selectedNoteIds.isEmpty) return;
     _emit(
@@ -95,7 +95,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   void selectAllVisible() {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     final ids = current.visibleNotes
         .where((note) => note.id != null)
@@ -107,7 +107,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   void toggleShowBookmarks() {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     final next = current.copyWith(showBookmarks: !current.showBookmarks);
     _emit(
@@ -123,7 +123,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   void toggleTypeColors(String type) {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     final updated = Set<String>.from(current.enabledTypeColors);
     for (final color in notesColors) {
@@ -142,7 +142,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   void toggleTypeColor(String type, String color) {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     final updated = Set<String>.from(current.enabledTypeColors);
     final key = _filterKey(type, color);
@@ -159,7 +159,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   void resetFilters() {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     final defaults = NoteFilterDefaults.initialTypeColorSelection();
     _emit(
@@ -173,7 +173,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   void toggleViewSort(NotesSortField field) {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     final newMode = current.viewSortMode.field == field
         ? current.viewSortMode.toggleDirection()
@@ -193,7 +193,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   void setExportSortField(NotesSortField field) {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     final newMode = current.exportSortMode.copyWith(field: field);
     _persistExportSort(newMode);
@@ -203,7 +203,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   void toggleExportSortDirection() {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     final updated = current.exportSortMode.toggleDirection();
     _persistExportSort(updated);
@@ -215,7 +215,7 @@ class BookNotesController extends _$BookNotesController {
   }
 
   Future<void> updateNote(BookNote note) async {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) return;
     await bookNoteDao.updateBookNoteById(note);
     // await Sync().syncData(
@@ -242,7 +242,7 @@ class BookNotesController extends _$BookNotesController {
     //   trigger: SyncTrigger.auto,
     // );
 
-    ref.read(BookmarkProvider(book.id).notifier).refreshBookmarks();
+    ref.read(bookmarkProvider(book.id).notifier).refreshBookmarks();
 
     await refresh();
   }
@@ -251,7 +251,7 @@ class BookNotesController extends _$BookNotesController {
     required bool selectedOnly,
     List<BookNote>? custom,
   }) {
-    final current = state.valueOrNull;
+    final current = state.value;
     if (current == null) {
       return const [];
     }

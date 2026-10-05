@@ -47,7 +47,7 @@ class Bookmark extends _$Bookmark {
 
       bookmark = bookmark.copyWith(id: id);
       List<BookmarkModel> newState = [
-        ...state.valueOrNull ?? [],
+        ...state.value ?? [],
         bookmark,
       ];
 
@@ -65,12 +65,12 @@ class Bookmark extends _$Bookmark {
 
     try {
       if (id == null) {
-        final bookmark = state.valueOrNull?.firstWhere((b) => b.cfi == cfi);
+        final bookmark = state.value?.firstWhere((b) => b.cfi == cfi);
         id = bookmark?.id;
       }
 
       if (cfi == null) {
-        final bookmark = state.valueOrNull?.firstWhere((b) => b.id == id);
+        final bookmark = state.value?.firstWhere((b) => b.id == id);
         cfi = bookmark?.cfi;
       }
 
@@ -83,7 +83,7 @@ class Bookmark extends _$Bookmark {
         );
       });
 
-      var newState = state.valueOrNull?.where((b) => b.id != id).toList() ?? [];
+      var newState = state.value?.where((b) => b.id != id).toList() ?? [];
       state = AsyncData(newState);
       final key = epubPlayerKey.currentState;
       key?.removeAnnotation(cfi!);

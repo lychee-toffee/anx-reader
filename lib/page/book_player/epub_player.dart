@@ -862,7 +862,7 @@ class EpubPlayerState extends ConsumerState<EpubPlayer>
           bookmarkExists = false;
         } else {
           BookmarkModel bookmark = await ref
-              .read(BookmarkProvider(widget.book.id).notifier)
+              .read(bookmarkProvider(widget.book.id).notifier)
               .addBookmark(
                 BookmarkModel(
                   bookId: widget.book.id,

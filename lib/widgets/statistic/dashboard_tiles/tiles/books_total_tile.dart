@@ -26,7 +26,7 @@ class BooksTotalTile extends StatisticsDashboardTileBase {
   @override
   Widget buildContent(BuildContext context, WidgetRef ref) {
     final asyncValue =
-        ref.watch(StaticticsSummaryValueProvider(StatisticType.totalBooks));
+        ref.watch(staticticsSummaryValueProvider(StatisticType.totalBooks));
 
     return AsyncSkeletonWrapper<int>(
         asyncValue: asyncValue,

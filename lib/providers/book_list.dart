@@ -96,7 +96,7 @@ class BookList extends _$BookList {
   }
 
   Future<List<List<Book>>> _buildWithFilters({String? query}) async {
-    final status = ref.watch(readingStatusFilterNotifierProvider);
+    final status = ref.watch(readingStatusFilterProvider);
     final selectedTags = ref.watch(tagSelectionProvider);
 
     final books = await bookDao.selectNotDeleteBooks();

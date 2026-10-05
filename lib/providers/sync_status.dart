@@ -32,7 +32,7 @@ class SyncStatus extends _$SyncStatus {
         .toList();
     final webdavInfo = ref.read(syncProvider);
 
-    final isSyncing = ref.read(syncProvider.select((value) => value.isSyncing));
+    final isSyncing = ref.read(syncProvider).isSyncing;
 
     List<int> downloading = isSyncing &&
             webdavInfo.direction == SyncDirection.download &&

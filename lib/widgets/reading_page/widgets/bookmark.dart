@@ -27,7 +27,7 @@ class _BookmarkWidgetState extends ConsumerState<BookmarkWidget> {
   Widget build(BuildContext context) {
     final bookId = widget.epubPlayerKey.currentState!.book.id;
 
-    final bookmarkList = ref.watch(BookmarkProvider(bookId));
+    final bookmarkList = ref.watch(bookmarkProvider(bookId));
     return bookmarkList.when(
       data: (bookmarks) {
         if (bookmarks.isEmpty) {
@@ -59,7 +59,7 @@ class _BookmarkWidgetState extends ConsumerState<BookmarkWidget> {
                   widget.onNavigate();
                 },
                 onDelete: (id) {
-                  ref.read(BookmarkProvider(bookId).notifier).removeBookmark(
+                  ref.read(bookmarkProvider(bookId).notifier).removeBookmark(
                         id: id,
                       );
                 },

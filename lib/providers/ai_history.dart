@@ -1,5 +1,6 @@
 import 'package:anx_reader/service/ai/ai_history.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 final aiHistoryProvider = StateNotifierProvider<AiHistoryNotifier,
     AsyncValue<List<AiChatHistoryEntry>>>((ref) {

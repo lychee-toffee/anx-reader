@@ -80,5 +80,9 @@ remote-backup.txt
 CODEX_RESUME.md
 
 docs/ai_handoff.diff
+docs/ai_handoff.diff.archived
 
 docs/ai_handoff_report.md
+
+# Local issue records
+docs/issues/

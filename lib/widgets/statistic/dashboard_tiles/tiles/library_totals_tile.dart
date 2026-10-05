@@ -32,9 +32,9 @@ class LibraryTotalsTile extends StatisticsDashboardTileBase {
 
     return AsyncSkeletonWrapper<List>(
         asyncValue: combineAsyncValues([
-          ref.watch(StaticticsSummaryValueProvider(StatisticType.totalBooks)),
-          ref.watch(StaticticsSummaryValueProvider(StatisticType.totalDates)),
-          ref.watch(StaticticsSummaryValueProvider(StatisticType.totalNotes)),
+          ref.watch(staticticsSummaryValueProvider(StatisticType.totalBooks)),
+          ref.watch(staticticsSummaryValueProvider(StatisticType.totalDates)),
+          ref.watch(staticticsSummaryValueProvider(StatisticType.totalNotes)),
         ]),
         mock: [0, 0, 0],
         builder: (data, _) {
