@@ -71,3 +71,14 @@ google_service_account.json
 # FVM Version Cache
 .fvm/
 .fvmrc
+android/build/
+
+remote-backup.txt
+
+# Local AI handoff notes
+
+CODEX_RESUME.md
+
+docs/ai_handoff.diff
+
+docs/ai_handoff_report.md
