@@ -299,6 +299,10 @@ class _ContextMenuOverlayState extends State<_ContextMenuOverlay>
   bool _showSearchMenu = false;
   String _searchQuery = '';
   bool _waitingForFirstMeasurement = true;
+  // O1 方案 B（D1 修复）：已提交给守卫的菜单矩形 = 最终渲染位置
+  // （placement.offset + 实测 size）。不能读 _menuKey 的 RenderBox——
+  // setState(_position = …) 之后、下一帧布局之前它仍是上一帧位置（见 design §5.3）。
+  Rect? _guardRect;
   late BoxConstraints _menuConstraints;
   late double _bottomInset;
   int? _noteId;
@@ -314,13 +318,35 @@ class _ContextMenuOverlayState extends State<_ContextMenuOverlay>
     _bottomInset = widget.initialBottomInset;
     _menuConstraints = _buildConstraints(widget.initialBottomInset);
     _scheduleRecalculate();
+    // O1 方案 B：工具栏浮层出现即申请守卫（矩形懒取，首次布局后由
+    // _updatePlacement -> refresh 补齐真实尺寸）。
+    epubPlayerKey.currentState?.mouseGuard
+        .push('contextMenu', rect: _currentMenuRect, token: this);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     epubPlayerKey.currentState?.setSelectionClearLocked(false);
+    epubPlayerKey.currentState?.mouseGuard.pop('contextMenu', token: this);
     super.dispose();
+  }
+
+  /// O1 方案 B：菜单当前占据的屏幕矩形（全局坐标），供 ReaderMouseGuard 归一化下发。
+  /// 优先返回 _updatePlacement 已提交的 _guardRect（= 最终渲染位置）；仅在尚未测量时
+  /// 回退到 RenderBox（首次可能为上一帧/假想位置，见 design §5.3 硬性要求）。
+  Rect? _currentMenuRect() {
+    final committed = _guardRect;
+    if (committed != null) return committed;
+    final box = _menuKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return null;
+    final topLeft = box.localToGlobal(Offset.zero);
+    return Rect.fromLTWH(
+      topLeft.dx,
+      topLeft.dy,
+      box.size.width,
+      box.size.height,
+    );
   }
 
   BoxConstraints _buildConstraints(double bottomInset) {
@@ -384,6 +410,7 @@ class _ContextMenuOverlayState extends State<_ContextMenuOverlay>
           _menuConstraints = newConstraints;
         });
       }
+      epubPlayerKey.currentState?.mouseGuard.refresh('contextMenu');
       return;
     }
 
@@ -397,6 +424,15 @@ class _ContextMenuOverlayState extends State<_ContextMenuOverlay>
       verticalMargin: widget.verticalMargin,
       gap: widget.gap,
       bottomInset: currentBottomInset,
+    );
+
+    // O1 方案 B（D1 修复）：矩形 = 最终渲染位置，直接由已算出的 placement.offset 与
+    // 实测 size 构造，避免读到上一帧的 RenderBox 位置（见 design §5.3）。
+    _guardRect = Rect.fromLTWH(
+      placement.offset.dx,
+      placement.offset.dy,
+      size.width,
+      size.height,
     );
 
     final bool positionChanged =
@@ -424,6 +460,7 @@ class _ContextMenuOverlayState extends State<_ContextMenuOverlay>
         _waitingForFirstMeasurement = false;
       });
     }
+    epubPlayerKey.currentState?.mouseGuard.refresh('contextMenu');
   }
 
   void _toggleTranslationMenu() {

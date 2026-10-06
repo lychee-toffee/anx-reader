@@ -4,6 +4,7 @@ console.log('AnxUA', navigator.userAgent)
 import './view.js'
 import { FootnoteHandler } from './footnotes.js'
 import { Overlayer } from './overlayer.js'
+import { installMouseGuard, isMouseGuardLatchActive } from './mouse-guard.js'
 import { collapse, compare, fromRange, toRange } from './epubcfi.js'
 const { configure, ZipReader, BlobReader, TextWriter, BlobWriter } =
   await import('./vendor/zip.js')
@@ -238,6 +239,9 @@ const getAutoPageLocationKey = (lastLocation, index) => {
 };
 
 const setSelectionHandler = (view, doc, index) => {
+  // O1 方案 B：为该内容文档安装鼠标事件守卫（幂等；跨源时 fail-open）。
+  installMouseGuard(doc)
+
   let hasActiveSelection = false;
   let lastPointerUpRange = null;
   doc.__anxSelectionClearedAt = 0;
@@ -259,6 +263,11 @@ const setSelectionHandler = (view, doc, index) => {
     doc.__anxSelectionClearedAt = Date.now();
     doc.__anxSuppressClick = true;
     stopAutoPageSession(view);
+    // 守卫闩锁期间：浏览器若仍清了选区，也不通知 Flutter 拆浮层
+    // （等价于方案 A，但更早、更窄；见 design §5.8）。
+    if (isMouseGuardLatchActive()) {
+      return;
+    }
     callFlutter('onSelectionCleared');
   };
 

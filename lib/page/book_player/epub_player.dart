@@ -20,6 +20,7 @@ import 'package:anx_reader/models/reading_rules.dart';
 import 'package:anx_reader/models/search_result_model.dart';
 import 'package:anx_reader/models/toc_item.dart';
 import 'package:anx_reader/page/book_player/image_viewer.dart';
+import 'package:anx_reader/page/book_player/reader_mouse_guard.dart';
 import 'package:anx_reader/page/home_page.dart';
 import 'package:anx_reader/page/reading_page.dart';
 import 'package:anx_reader/providers/book_list.dart';
@@ -88,6 +89,8 @@ class EpubPlayerState extends ConsumerState<EpubPlayer>
   int chapterCurrentPage = 0;
   int chapterTotalPages = 0;
   OverlayEntry? contextMenuEntry;
+  // O1 方案 B：Dart ↔ JS 鼠标事件守卫（见 docs/issues/O1-method-B-design.md）。
+  final ReaderMouseGuard mouseGuard = ReaderMouseGuard();
   AnimationController? _animationController;
   Animation<double>? _animation;
   bool showHistory = false;
@@ -648,6 +651,8 @@ class EpubPlayerState extends ConsumerState<EpubPlayer>
     controller.addJavaScriptHandler(
         handlerName: 'onLoadEnd',
         callback: (args) {
+          // O1 方案 B：页面加载完成后重放守卫状态（幂等）。
+          mouseGuard.flush();
           widget.onLoadEnd();
         });
 
@@ -906,6 +911,7 @@ class EpubPlayerState extends ConsumerState<EpubPlayer>
       await InAppWebViewController.setWebContentsDebuggingEnabled(true);
     }
     webViewController = controller;
+    mouseGuard.attach(controller);
     setHandler(controller);
     _registerChapterContentBridge();
 
@@ -996,6 +1002,7 @@ class EpubPlayerState extends ConsumerState<EpubPlayer>
   void dispose() {
     _scrollDebounceTimer?.cancel();
     _animationController?.dispose();
+    mouseGuard.reset();
     saveReadingProgress();
     removeOverlay();
     super.dispose();

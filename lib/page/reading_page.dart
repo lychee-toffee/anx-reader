@@ -322,6 +322,10 @@ class ReadingPageState extends ConsumerState<ReadingPage>
       bottomBarOffstage = false;
       _releaseReaderFocus();
     });
+    // O1 方案 B：阅读菜单栏遮罩覆盖全视口，期间不让鼠标事件穿透到 WebView
+    // （见 docs/issues/O1-method-B-design.md §5.3 / §7）。
+    epubPlayerKey.currentState?.mouseGuard
+        .push('bottomBar', fullscreen: true, token: this);
   }
 
   void hideBottomBar() {
@@ -333,6 +337,7 @@ class ReadingPageState extends ConsumerState<ReadingPage>
       }
       requestReaderFocus();
     });
+    epubPlayerKey.currentState?.mouseGuard.pop('bottomBar', token: this);
   }
 
   void showOrHideAppBarAndBottomBar(bool show) {
@@ -857,6 +862,15 @@ class ReadingPageState extends ConsumerState<ReadingPage>
             child: Scaffold(
               key: _scaffoldKey,
               resizeToAvoidBottomInset: false,
+              onDrawerChanged: (isOpen) {
+                // O1 方案 B：抽屉打开期间全视口吞鼠标（其余为 scrim，负责关闭）。
+                final guard = epubPlayerKey.currentState?.mouseGuard;
+                if (isOpen) {
+                  guard?.push('drawer', fullscreen: true, token: this);
+                } else {
+                  guard?.pop('drawer', token: this);
+                }
+              },
               drawer: PointerInterceptor(
                 child: Drawer(
                   width: math.min(
